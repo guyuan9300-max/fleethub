@@ -1,14 +1,3 @@
 [
-  {
-    "session_id": "chat_001",
-    "task_id": "task_001",
-    "chat_id": "oc_85bd98d1ba145607a31567335f1d0006",
-    "chat_name": "OpenClaw 开发群",
-    "participants": [
-      { "type": "robot", "id": "guyuanyuan-macbook-air", "name": "顾源源的 MacBook Air" },
-      { "type": "human", "id": "ou_938834b0555a475220bda60f91725e0b", "name": "顾源源" },
-      { "type": "robot", "id": "momobot", "name": "默默机器人" }
-    ],
-    "last_activity_at": 1771497500000
-  }
+  {"session_id":"chat_001","task_id":"task_001","chat_id":"oc_85bd98d1ba145607a31567335f1d0006","chat_name":"OpenClaw 开发群","participants":[{"type":"robot","id":"guyuanyuan-macbook-air","name":"顾源源的 MacBook Air"},{"type":"human","id":"ou_938834b0555a475220bda60f91725e0b","name":"顾源源"},{"type":"robot","id":"momobot","name":"默默机器人"}],"last_activity_at":1771497500000}
 ]
