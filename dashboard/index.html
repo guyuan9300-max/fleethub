@@ -131,7 +131,7 @@
         async function fetchRobotData() {
             try {
                 // 尝试从 GitHub 获取数据
-                const response = await fetch('data/robots.json');
+                const response = await fetch('https://gist.githubusercontent.com/guyuan9300-max/7370b65f7e9970e724aa5addd56d5857/raw/robots.json?t=' + Date.now());
                 if (response.ok) {
                     const data = await response.json();
                     return data;
