@@ -3,185 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FleetHub - 机器人管理系统</title>
+    <title>FleetHub - 机群管理中心</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
-        :root {
-            --primary: #4F46E5; --primary-light: #818CF8; --bg-dark: #0D1117; --bg-card: #161B22;
-            --bg-card-hover: #1C2128; --border: #30363D; --text-primary: #E6EDF3; --text-secondary: #8B949E;
-            --success: #3FB950; --warning: #D29922; --danger: #F85149; --offline: #6E7681; --running: #58A6FF;
-        }
-        body { background: var(--bg-dark); color: var(--text-primary); display: flex; min-height: 100vh; }
-        .sidebar { width: 240px; background: var(--bg-card); border-right: 1px solid var(--border); padding: 16px 0; display: flex; flex-direction: column; position: fixed; height: 100vh; }
-        .logo { padding: 8px 20px 24px; display: flex; align-items: center; gap: 12px; }
-        .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
-        .logo h1 { font-size: 20px; font-weight: 700; color: var(--text-primary); }
-        .nav-section { padding: 8px 12px; }
-        .nav-label { font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 12px; margin-bottom: 4px; }
-        .nav-menu { list-style: none; }
-        .nav-item { padding: 10px 16px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 12px; color: var(--text-secondary); font-weight: 500; font-size: 14px; transition: all 0.2s; margin-bottom: 2px; }
-        .nav-item:hover { background: var(--bg-card-hover); color: var(--text-primary); }
-        .nav-item.active { background: rgba(79, 70, 229, 0.15); color: var(--primary-light); }
-        .nav-icon { width: 20px; height: 20px; opacity: 0.8; }
-        .main { margin-left: 240px; flex: 1; padding: 24px 32px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, sans-serif; }
+        :root { --primary: #4F46E5; --primary-light: #818CF8; --bg-dark: #0D1117; --bg-card: #161B22; --bg-card-hover: #1C2128; --border: #30363D; --text-primary: #E6EDF3; --text-secondary: #8B949E; --success: #3FB950; --warning: #D29922; --danger: #F85149; --offline: #6E7681; --running: #58A6FF; }
+        body { background: var(--bg-dark); color: var(--text-primary); }
+        .app { display: flex; min-height: 100vh; }
+        .sidebar { width: 220px; background: var(--bg-card); border-right: 1px solid var(--border); padding: 20px 0; position: fixed; height: 100vh; }
+        .logo { padding: 0 20px 24px; display: flex; align-items: center; gap: 10px; }
+        .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+        .logo h1 { font-size: 18px; font-weight: 700; }
+        .nav-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; padding: 16px 20px 8px; font-weight: 600; }
+        .nav-item { padding: 10px 20px; display: flex; align-items: center; gap: 10px; color: var(--text-secondary); cursor: pointer; transition: 0.2s; }
+        .nav-item:hover, .nav-item.active { background: rgba(79,70,229,0.1); color: var(--primary-light); }
+        .main { margin-left: 220px; flex: 1; padding: 24px 32px; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
         .header h2 { font-size: 24px; font-weight: 600; }
-        .header-right { display: flex; align-items: center; gap: 12px; }
-        .search-box { display: flex; align-items: center; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 8px 16px; gap: 8px; width: 280px; }
-        .search-box input { border: none; outline: none; background: transparent; width: 100%; font-size: 14px; color: var(--text-primary); }
-        .search-box input::placeholder { color: var(--text-secondary); }
-        .icon-btn { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); transition: all 0.2s; }
-        .icon-btn:hover { background: var(--bg-card-hover); color: var(--text-primary); }
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-        .stat-card { background: var(--bg-card); border-radius: 12px; padding: 20px; border: 1px solid var(--border); display: flex; align-items: center; gap: 16px; }
-        .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
-        .stat-icon.total { background: rgba(79, 70, 229, 0.15); color: var(--primary-light); }
-        .stat-icon.online { background: rgba(63, 185, 80, 0.15); color: var(--success); }
-        .stat-icon.offline { background: rgba(110, 118, 129, 0.15); color: var(--offline); }
-        .stat-icon.running { background: rgba(88, 166, 255, 0.15); color: var(--running); }
-        .stat-content h3 { font-size: 12px; color: var(--text-secondary); font-weight: 500; margin-bottom: 4px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: var(--bg-card); border-radius: 12px; padding: 16px; border: 1px solid var(--border); }
+        .stat-card h3 { font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; }
         .stat-value { font-size: 28px; font-weight: 700; }
-        .entities-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 24px; }
-        .entity-card { background: var(--bg-card); border-radius: 12px; padding: 20px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; }
-        .entity-card:hover { background: var(--bg-card-hover); transform: translateY(-2px); }
-        .entity-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
-        .entity-info { display: flex; align-items: center; gap: 12px; }
-        .entity-avatar { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; font-size: 16px; }
-        .entity-name { font-size: 16px; font-weight: 600; margin-bottom: 2px; }
-        .entity-id { font-size: 12px; color: var(--text-secondary); }
-        .entity-status { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
-        .entity-status.online { background: rgba(63, 185, 80, 0.15); color: var(--success); }
-        .entity-status.offline { background: rgba(110, 118, 129, 0.15); color: var(--offline); }
-        .entity-status.running { background: rgba(88, 166, 255, 0.15); color: var(--running); }
-        .entity-details { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .detail-item { background: var(--bg-dark); border-radius: 8px; padding: 12px; }
-        .detail-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
-        .detail-value { font-size: 14px; font-weight: 600; }
-        .detail-value.task { color: var(--primary-light); }
-        .progress-container { margin-top: 12px; }
-        .progress-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
-        .progress-label { font-size: 12px; color: var(--text-secondary); }
-        .progress-value { font-size: 12px; font-weight: 600; color: var(--primary-light); }
-        .progress-bar { height: 6px; background: var(--bg-dark); border-radius: 3px; overflow: hidden; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-light)); border-radius: 3px; transition: width 0.5s ease; }
-        .system-card { background: var(--bg-card); border-radius: 12px; padding: 20px; border: 1px solid var(--border); }
-        .system-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-        .system-header h3 { font-size: 16px; font-weight: 600; }
-        .system-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-        .system-stat { background: var(--bg-dark); border-radius: 8px; padding: 16px; text-align: center; }
-        .system-stat-value { font-size: 24px; font-weight: 700; color: var(--primary-light); margin-bottom: 4px; }
-        .system-stat-label { font-size: 12px; color: var(--text-secondary); }
-        .loading { display: flex; align-items: center; justify-content: center; padding: 60px; color: var(--text-secondary); }
-        .spinner { width: 24px; height: 24px; border: 3px solid var(--border); border-top-color: var(--primary-light); border-radius: 50%; animation: spin 1s linear infinite; margin-right: 12px; }
+        .section-title { font-size: 14px; font-weight: 600; color: var(--text-secondary); margin: 24px 0 16px; }
+        .robots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+        .robot-card { background: var(--bg-card); border-radius: 12px; padding: 20px; border: 1px solid var(--border); }
+        .robot-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .robot-info { display: flex; align-items: center; gap: 12px; }
+        .robot-avatar { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; }
+        .robot-name { font-size: 16px; font-weight: 600; }
+        .robot-owner { font-size: 12px; color: var(--text-secondary); }
+        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+        .status-badge.online { background: rgba(63,185,80,0.15); color: var(--success); }
+        .status-badge.offline { background: rgba(110,118,129,0.15); color: var(--offline); }
+        .robot-metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 16px 0; }
+        .metric { background: var(--bg-dark); border-radius: 8px; padding: 12px; }
+        .metric-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
+        .metric-value { font-size: 14px; font-weight: 600; }
+        .progress-bar { height: 6px; background: var(--bg-dark); border-radius: 3px; overflow: hidden; margin-top: 12px; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-light)); }
+        .tasks-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        .task-column { background: var(--bg-card); border-radius: 12px; padding: 16px; border: 1px solid var(--border); }
+        .task-column h4 { font-size: 14px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+        .task-column h4.todo { color: var(--text-secondary); }
+        .task-column h4.running { color: var(--running); }
+        .task-column h4.blocked { color: var(--warning); }
+        .task-column h4.done { color: var(--success); }
+        .task-card { background: var(--bg-dark); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+        .task-title { font-size: 14px; font-weight: 500; margin-bottom: 8px; }
+        .task-meta { font-size: 12px; color: var(--text-secondary); display: flex; justify-content: space-between; }
+        .collab-list { background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
+        .collab-item { display: flex; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+        .collab-item:last-child { border-bottom: none; }
+        .collab-icon { width: 40px; height: 40px; background: rgba(79,70,229,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 16px; }
+        .collab-info { flex: 1; }
+        .collab-name { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+        .collab-task { font-size: 12px; color: var(--text-secondary); }
+        .collab-participants { display: flex; gap: 8px; }
+        .participant { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; }
+        .participant.robot { background: var(--primary); color: white; }
+        .participant.human { background: var(--success); color: white; }
+        .loading { padding: 40px; text-align: center; color: var(--text-secondary); }
+        .spinner { width: 24px; height: 24px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 12px; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .last-update { font-size: 12px; color: var(--text-secondary); text-align: right; padding: 12px 0; }
+        .view-content { display: none; }
+        .view-content.active { display: block; }
     </style>
 </head>
 <body>
-    <aside class="sidebar">
-        <div class="logo">
-            <div class="logo-icon"><svg width="24" height="24" fill="white" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg></div>
-            <h1>FleetHub</h1>
-        </div>
-        <div class="nav-section">
-            <div class="nav-label">Overview</div>
-            <ul class="nav-menu">
-                <li class="nav-item active"><svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>Dashboard</li>
-                <li class="nav-item"><svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>Map</li>
-            </ul>
-        </div>
-        <div class="nav-section">
-            <div class="nav-label">Manage</div>
-            <ul class="nav-menu">
-                <li class="nav-item"><svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>Robots</li>
-                <li class="nav-item"><svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.6"/></svg>Tasks</li>
-                <li class="nav-item"><svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Reports</li>
-            </ul>
-        </div>
-    </aside>
-    <main class="main">
-        <header class="header">
-            <h2>Dashboard</h2>
-            <div class="header-right">
-                <div class="search-box"><svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg><input type="text" placeholder="搜索机器人..."></div>
-                <button class="icon-btn" onclick="refreshData()"><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg></button>
+    <div class="app">
+        <aside class="sidebar">
+            <div class="logo"><div class="logo-icon">🚀</div><h1>FleetHub</h1></div>
+            <div class="nav-label">概览</div>
+            <div class="nav-item active" onclick="switchView('dashboard')">📊 Dashboard</div>
+            <div class="nav-label">管理</div>
+            <div class="nav-item" onclick="switchView('robots')">🤖 机器人</div>
+            <div class="nav-item" onclick="switchView('tasks')">📋 任务</div>
+            <div class="nav-item" onclick="switchView('collab')">💬 协作</div>
+        </aside>
+        <main class="main">
+            <header class="header">
+                <h2>Dashboard</h2>
+                <button onclick="refreshAll()" style="padding:8px 16px;background:var(--primary);color:white;border:none;border-radius:8px;cursor:pointer;">🔄 刷新</button>
+            </header>
+            <div class="stats-grid">
+                <div class="stat-card"><h3>总机器人</h3><div class="stat-value" id="stat-total">-</div></div>
+                <div class="stat-card"><h3>在线</h3><div class="stat-value" id="stat-online" style="color:var(--success)">-</div></div>
+                <div class="stat-card"><h3>离线</h3><div class="stat-value" id="stat-offline" style="color:var(--offline)">-</div></div>
+                <div class="stat-card"><h3>活跃任务</h3><div class="stat-value" id="stat-tasks">-</div></div>
+                <div class="stat-card"><h3>协作会话</h3><div class="stat-value" id="stat-collab">-</div></div>
             </div>
-        </header>
-        <div class="stats-grid">
-            <div class="stat-card"><div class="stat-icon total"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg></div><div class="stat-content"><h3>总机器人</h3><div class="stat-value" id="totalRobots">-</div></div></div>
-            <div class="stat-card"><div class="stat-icon online"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg></div><div class="stat-content"><h3>在线</h3><div class="stat-value" id="onlineRobots">-</div></div></div>
-            <div class="stat-card"><div class="stat-icon offline"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg></div><div class="stat-content"><h3>离线</h3><div class="stat-value" id="offlineRobots">-</div></div></div>
-            <div class="stat-card"><div class="stat-icon running"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/></svg></div><div class="stat-content"><h3>执行中</h3><div class="stat-value" id="runningRobots">-</div></div></div>
-        </div>
-        <h3 style="margin-bottom: 16px; color: var(--text-secondary); font-size: 14px; font-weight: 600;">ROBOTS</h3>
-        <div class="entities-grid" id="entitiesGrid"><div class="loading" style="grid-column: 1 / -1;"><div class="spinner"></div>加载机器人数据...</div></div>
-        <div class="system-card">
-            <div class="system-header"><h3>系统状态</h3><span class="last-update" id="lastUpdate">最后更新: -</span></div>
-            <div class="system-stats">
-                <div class="system-stat"><div class="system-stat-value" id="avgCpu">-</div><div class="system-stat-label">平均 CPU</div></div>
-                <div class="system-stat"><div class="system-stat-value" id="avgMemory">-</div><div class="system-stat-label">平均内存</div></div>
-                <div class="system-stat"><div class="system-stat-value" id="totalTasks">-</div><div class="system-stat-label">活跃任务</div></div>
+            <div id="view-dashboard" class="view-content active">
+                <div class="section-title">🤖 机器人状态</div>
+                <div class="robots-grid" id="robots-grid"><div class="loading"><div class="spinner"></div>加载中...</div></div>
+                <div class="section-title">💬 活跃协作</div>
+                <div class="collab-list" id="collab-list"><div class="loading"><div class="spinner"></div>加载中...</div></div>
             </div>
-        </div>
-    </main>
+            <div id="view-robots" class="view-content">
+                <div class="robots-grid" id="robots-grid-full"><div class="loading"><div class="spinner"></div>加载中...</div></div>
+            </div>
+            <div id="view-tasks" class="view-content">
+                <div class="tasks-board" id="tasks-board"><div class="loading"><div class="spinner"></div>加载中...</div></div>
+            </div>
+            <div id="view-collab" class="view-content">
+                <div class="collab-list" id="collab-list-full"><div class="loading"><div class="spinner"></div>加载中...</div></div>
+            </div>
+        </main>
+    </div>
     <script>
-        const robotColors = {'顾源源的 MacBook Air': '#4F46E5', '默默机器人': '#10B981'};
-        function getRobotColor(name) { return robotColors[name] || '#6E7681'; }
-        async function fetchRobotData() {
-            try {
-                // 尝试从 GitHub 获取数据
-                const response = await fetch('https://raw.githubusercontent.com/guyuan9300-max/fleethub/main/robots.json?t=' + Date.now());
-                if (response.ok) {
-                    const data = await response.json();
-                    return data;
-                }
-            } catch(e) { console.log('从GitHub获取失败'); }
-            // 备用：从本地服务器获取
-            try {
-                const response = await fetch('http://localhost:3000/api/robots');
-                if (response.ok) return await response.json();
-            } catch(e) { console.log('本地服务器未运行'); }
-            return [];
+        const DATA_URL = 'https://raw.githubusercontent.com/guyuan9300-max/fleethub/main/';
+        async function loadJSON(file) { try { const res = await fetch(DATA_URL + file + '?t=' + Date.now()); if (res.ok) return await res.json(); } catch(e) { console.error(file, e); } return null; }
+        async function refreshAll() {
+            const [robots, tasks, collab] = await Promise.all([loadJSON('robots.json'), loadJSON('tasks.json'), loadJSON('collab.json')]);
+            renderStats(robots, tasks, collab); renderRobots(robots); renderTasks(tasks); renderCollab(collab);
         }
-        function formatTime(timestamp) {
-            if (!timestamp) return '-';
-            const diff = Date.now() - timestamp;
-            if (diff < 60000) return '刚刚';
-            if (diff < 3600000) return Math.floor(diff/60000) + '分钟前';
-            if (diff < 86400000) return Math.floor(diff/3600000) + '小时前';
-            return new Date(timestamp).toLocaleDateString('zh-CN');
+        function renderStats(robots, tasks, collab) {
+            const online = (robots||[]).filter(r => r.status === 'online').length;
+            const offline = (robots||[]).filter(r => r.status === 'offline').length;
+            const activeTasks = (tasks||[]).filter(t => t.status === 'RUNNING').length;
+            document.getElementById('stat-total').textContent = (robots||[]).length || 0;
+            document.getElementById('stat-online').textContent = online;
+            document.getElementById('stat-offline').textContent = offline;
+            document.getElementById('stat-tasks').textContent = activeTasks;
+            document.getElementById('stat-collab').textContent = (collab||[]).length || 0;
         }
-        function renderEntities(robots) {
-            const grid = document.getElementById('entitiesGrid');
-            if (!robots || robots.length === 0) { grid.innerHTML = '<div class="loading" style="grid-column: 1 / -1;">暂无机器人数据</div>'; return; }
-            let online = 0, offline = 0, running = 0, totalCpu = 0, totalMemory = 0, activeTasks = 0;
-            grid.innerHTML = robots.map(robot => {
-                const status = robot.status || '离线';
-                const statusClass = status === '在线' ? 'online' : (status === '执行中' ? 'running' : 'offline');
-                if (status === '在线') online++; else if (status === '执行中') running++; else offline++;
-                totalCpu += robot.cpu || 0; totalMemory += robot.memory || 0;
-                if (robot.currentTask && robot.currentTask !== '-') activeTasks++;
-                const color = getRobotColor(robot.name);
-                return `<div class="entity-card"><div class="entity-header"><div class="entity-info"><div class="entity-avatar" style="background: ${color}">${robot.name ? robot.name[0] : '?'}</div><div><div class="entity-name">${robot.name || '-'}</div><div class="entity-id">${robot.owner || '-'}</div></div></div><span class="entity-status ${statusClass}">${status}</span></div><div class="entity-details"><div class="detail-item"><div class="detail-label">当前任务</div><div class="detail-value task">${robot.currentTask || '-'}</div></div><div class="detail-item"><div class="detail-label">资源使用</div><div class="detail-value">CPU ${robot.cpu || 0}% / 内存 ${robot.memory || 0}%</div></div></div><div class="progress-container"><div class="progress-header"><span class="progress-label">任务进度</span><span class="progress-value">${robot.progress || 0}%</span></div><div class="progress-bar"><div class="progress-fill" style="width: ${robot.progress || 0}%"></div></div></div></div>`;
+        function renderRobots(robots) {
+            if (!robots || robots.length === 0) { const msg = '<div class="loading">暂无机器人数据</div>'; document.getElementById('robots-grid').innerHTML = msg; document.getElementById('robots-grid-full').innerHTML = msg; return; }
+            const colors = {'顾源源的 MacBook Air': '#4F46E5', '默默机器人': '#10B981'};
+            const html = robots.map(r => {
+                const color = colors[r.name] || '#6E7681';
+                return `<div class="robot-card"><div class="robot-header"><div class="robot-info"><div class="robot-avatar" style="background:${color}">${r.name[0]}</div><div><div class="robot-name">${r.name}</div><div class="robot-owner">${r.owner} · ${r.location}</div></div></div><span class="status-badge ${r.status}">${r.status === 'online' ? '🟢 在线' : '🔴 离线'}</span></div><div class="robot-metrics"><div class="metric"><div class="metric-label">CPU</div><div class="metric-value">${r.cpu}%</div></div><div class="metric"><div class="metric-label">内存</div><div class="metric-value">${r.memory}%</div></div><div class="metric"><div class="metric-label">版本</div><div class="metric-value">${r.version}</div></div><div class="metric"><div class="metric-label">健康度</div><div class="metric-value" style="color:${r.health_score > 70 ? 'var(--success)' : 'var(--warning)'}">${r.health_score || '-'}%</div></div></div><div class="metric"><div class="metric-label">当前任务</div><div class="metric-value" style="color:var(--primary-light)">${r.current_task || '待命中'}</div></div><div class="progress-bar"><div class="progress-fill" style="width:${r.progress || 0}%"></div></div></div>`;
             }).join('');
-            document.getElementById('totalRobots').textContent = robots.length;
-            document.getElementById('onlineRobots').textContent = online;
-            document.getElementById('offlineRobots').textContent = offline;
-            document.getElementById('runningRobots').textContent = running;
-            document.getElementById('avgCpu').textContent = robots.length ? Math.round(totalCpu/robots.length) + '%' : '-';
-            document.getElementById('avgMemory').textContent = robots.length ? Math.round(totalMemory/robots.length) + '%' : '-';
-            document.getElementById('totalTasks').textContent = activeTasks;
-            document.getElementById('lastUpdate').textContent = '最后更新: ' + new Date().toLocaleTimeString('zh-CN');
+            document.getElementById('robots-grid').innerHTML = html;
+            document.getElementById('robots-grid-full').innerHTML = html;
         }
-        async function refreshData() {
-            const grid = document.getElementById('entitiesGrid');
-            grid.innerHTML = '<div class="loading" style="grid-column: 1 / -1;"><div class="spinner"></div>加载中...</div>';
-            const robots = await fetchRobotData();
-            renderEntities(robots);
+        function renderTasks(tasks) {
+            if (!tasks || tasks.length === 0) { document.getElementById('tasks-board').innerHTML = '<div class="loading">暂无任务</div>'; return; }
+            const cols = { TODO: [], RUNNING: [], BLOCKED: [], DONE: [] };
+            tasks.forEach(t => { if (cols[t.status]) cols[t.status].push(t); });
+            const html = Object.entries(cols).map(([status, list]) => `<div class="task-column"><h4 class="${status.toLowerCase()}">${status === 'TODO' ? '📝 待办' : status === 'RUNNING' ? '🔄 进行中' : status === 'BLOCKED' ? '⚠️ 阻塞' : '✅ 完成'} (${list.length})</h4>${list.map(t => `<div class="task-card"><div class="task-title">${t.title}</div><div class="task-meta"><span>👤 ${t.current_owner_robot_id || '未分配'}</span><span>${t.progress}%</span></div></div>`).join('')}</div>`).join('');
+            document.getElementById('tasks-board').innerHTML = html;
         }
-        refreshData();
-        setInterval(refreshData, 30000);
+        function renderCollab(collab) {
+            if (!collab || collab.length === 0) { const msg = '<div class="loading">暂无协作</div>'; document.getElementById('collab-list').innerHTML = msg; document.getElementById('collab-list-full').innerHTML = msg; return; }
+            const html = collab.map(c => `<div class="collab-item"><div class="collab-icon">💬</div><div class="collab-info"><div class="collab-name">${c.chat_name || c.chat_id}</div><div class="collab-task">📋 ${c.task_id || '无关联任务'}</div></div><div class="collab-participants">${c.participants.map(p => `<div class="participant ${p.type}" title="${p.name}">${p.name[0]}</div>`).join('')}</div></div>`).join('');
+            document.getElementById('collab-list').innerHTML = html;
+            document.getElementById('collab-list-full').innerHTML = html;
+        }
+        function switchView(view) {
+            document.querySelectorAll('.view-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('view-' + view).classList.add('active');
+            event.target.classList.add('active');
+        }
+        refreshAll();
+        setInterval(refreshAll, 30000);
     </script>
 </body>
 </html>
