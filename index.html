@@ -3,70 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FleetHub - 机群管理中心</title>
+    <title>FleetHub - 机群任务调度中心</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, sans-serif; }
-        :root { --primary: #4F46E5; --primary-light: #818CF8; --bg-dark: #0D1117; --bg-card: #161B22; --bg-card-hover: #1C2128; --border: #30363D; --text-primary: #E6EDF3; --text-secondary: #8B949E; --success: #3FB950; --warning: #D29922; --danger: #F85149; --offline: #6E7681; --running: #58A6FF; }
+        :root { --primary: #4F46E5; --primary-light: #818CF8; --bg-dark: #0D1117; --bg-card: #161B22; --bg-card-hover: #1C2128; --border: #30363D; --text-primary: #E6EDF3; --text-secondary: #8B949E; --success: #3FB950; --warning: #D29922; --danger: #F85149; --offline: #6E7681; --running: #58A6FF; --queued: #9CA3AF; }
         body { background: var(--bg-dark); color: var(--text-primary); }
         .app { display: flex; min-height: 100vh; }
         .sidebar { width: 220px; background: var(--bg-card); border-right: 1px solid var(--border); padding: 20px 0; position: fixed; height: 100vh; }
         .logo { padding: 0 20px 24px; display: flex; align-items: center; gap: 10px; }
-        .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
-        .logo h1 { font-size: 18px; font-weight: 700; }
+        .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .logo h1 { font-size: 16px; font-weight: 700; }
         .nav-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; padding: 16px 20px 8px; font-weight: 600; }
-        .nav-item { padding: 10px 20px; display: flex; align-items: center; gap: 10px; color: var(--text-secondary); cursor: pointer; transition: 0.2s; }
+        .nav-item { padding: 10px 20px; display: flex; align-items: center; gap: 10px; color: var(--text-secondary); cursor: pointer; transition: 0.2s; font-size: 14px; }
         .nav-item:hover, .nav-item.active { background: rgba(79,70,229,0.1); color: var(--primary-light); }
         .main { margin-left: 220px; flex: 1; padding: 24px 32px; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
         .header h2 { font-size: 24px; font-weight: 600; }
-        .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 24px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-bottom: 24px; }
         .stat-card { background: var(--bg-card); border-radius: 12px; padding: 16px; border: 1px solid var(--border); }
-        .stat-card h3 { font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; }
-        .stat-value { font-size: 28px; font-weight: 700; }
-        .section-title { font-size: 14px; font-weight: 600; color: var(--text-secondary); margin: 24px 0 16px; }
-        .robots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+        .stat-card h3 { font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; }
+        .stat-value { font-size: 24px; font-weight: 700; }
+        .section-title { font-size: 14px; font-weight: 600; color: var(--text-secondary); margin: 24px 0 16px; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* 机器人卡片 */
+        .robots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
         .robot-card { background: var(--bg-card); border-radius: 12px; padding: 20px; border: 1px solid var(--border); }
         .robot-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
         .robot-info { display: flex; align-items: center; gap: 12px; }
-        .robot-avatar { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; }
+        .robot-avatar { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; font-size: 16px; }
         .robot-name { font-size: 16px; font-weight: 600; }
         .robot-owner { font-size: 12px; color: var(--text-secondary); }
         .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
-        .status-badge.online { background: rgba(63,185,80,0.15); color: var(--success); }
+        .status-badge.running { background: rgba(88,166,255,0.15); color: var(--running); }
+        .status-badge.idle { background: rgba(156,163,175,0.15); color: var(--queued); }
         .status-badge.offline { background: rgba(110,118,129,0.15); color: var(--offline); }
-        .robot-metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 16px 0; }
-        .metric { background: var(--bg-dark); border-radius: 8px; padding: 12px; }
-        .metric-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
+        
+        .robot-task { background: var(--bg-dark); border-radius: 8px; padding: 12px; margin: 12px 0; }
+        .task-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; }
+        .task-name { font-size: 14px; font-weight: 500; color: var(--primary-light); }
+        .task-progress { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+        .progress-bar { flex: 1; height: 6px; background: var(--bg-card); border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--primary); }
+        .progress-text { font-size: 12px; color: var(--text-secondary); }
+        
+        .robot-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .metric { background: var(--bg-dark); border-radius: 6px; padding: 8px; text-align: center; }
+        .metric-label { font-size: 10px; color: var(--text-secondary); }
         .metric-value { font-size: 14px; font-weight: 600; }
-        .progress-bar { height: 6px; background: var(--bg-dark); border-radius: 3px; overflow: hidden; margin-top: 12px; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-light)); }
-        .tasks-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-        .task-column { background: var(--bg-card); border-radius: 12px; padding: 16px; border: 1px solid var(--border); }
-        .task-column h4 { font-size: 14px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
-        .task-column h4.todo { color: var(--text-secondary); }
-        .task-column h4.running { color: var(--running); }
-        .task-column h4.blocked { color: var(--warning); }
-        .task-column h4.done { color: var(--success); }
-        .task-card { background: var(--bg-dark); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
-        .task-title { font-size: 14px; font-weight: 500; margin-bottom: 8px; }
-        .task-meta { font-size: 12px; color: var(--text-secondary); display: flex; justify-content: space-between; }
-        .collab-list { background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
-        .collab-item { display: flex; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--border); }
-        .collab-item:last-child { border-bottom: none; }
-        .collab-icon { width: 40px; height: 40px; background: rgba(79,70,229,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 16px; }
-        .collab-info { flex: 1; }
-        .collab-name { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
-        .collab-task { font-size: 12px; color: var(--text-secondary); }
-        .collab-participants { display: flex; gap: 8px; }
-        .participant { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; }
-        .participant.robot { background: var(--primary); color: white; }
-        .participant.human { background: var(--success); color: white; }
+        
+        .robot-tags { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
+        .tag { font-size: 11px; padding: 3px 8px; background: rgba(79,70,229,0.15); color: var(--primary-light); border-radius: 4px; }
+        
+        /* 任务队列 */
+        .task-queue { background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
+        .task-item { display: flex; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+        .task-item:last-child { border-bottom: none; }
+        .task-item:hover { background: var(--bg-card-hover); }
+        .task-priority { width: 4px; height: 40px; border-radius: 2px; margin-right: 16px; }
+        .task-priority.high { background: var(--danger); }
+        .task-priority.medium { background: var(--warning); }
+        .task-priority.low { background: var(--success); }
+        .task-info { flex: 1; }
+        .task-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+        .task-meta { font-size: 12px; color: var(--text-secondary); display: flex; gap: 16px; }
+        .task-source { display: flex; align-items: center; gap: 4px; }
+        .task-assignee { display: flex; align-items: center; gap: 8px; }
+        .assignee-avatar { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; }
+        .assignee-avatar.robot { background: var(--primary); color: white; }
+        .assignee-avatar.human { background: var(--success); color: white; }
+        .assignee-avatar.unassigned { background: var(--border); color: var(--text-secondary); }
+        
+        .task-status { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+        .task-status.QUEUED { background: rgba(156,163,175,0.15); color: var(--queued); }
+        .task-status.RUNNING { background: rgba(88,166,255,0.15); color: var(--running); }
+        .task-status.COMPLETED { background: rgba(63,185,80,0.15); color: var(--success); }
+        
         .loading { padding: 40px; text-align: center; color: var(--text-secondary); }
         .spinner { width: 24px; height: 24px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 12px; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .view-content { display: none; }
         .view-content.active { display: block; }
+        .btn { padding: 8px 16px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; }
+        .btn:hover { background: var(--primary-light); }
     </style>
 </head>
 <body>
@@ -74,87 +93,198 @@
         <aside class="sidebar">
             <div class="logo"><div class="logo-icon">🚀</div><h1>FleetHub</h1></div>
             <div class="nav-label">概览</div>
-            <div class="nav-item active" onclick="switchView('dashboard')">📊 Dashboard</div>
+            <div class="nav-item active" onclick="switchView('dashboard')">📊 任务调度中心</div>
             <div class="nav-label">管理</div>
             <div class="nav-item" onclick="switchView('robots')">🤖 机器人</div>
-            <div class="nav-item" onclick="switchView('tasks')">📋 任务</div>
-            <div class="nav-item" onclick="switchView('collab')">💬 协作</div>
+            <div class="nav-item" onclick="switchView('queue')">📋 任务队列</div>
         </aside>
+        
         <main class="main">
             <header class="header">
-                <h2>Dashboard</h2>
-                <button onclick="refreshAll()" style="padding:8px 16px;background:var(--primary);color:white;border:none;border-radius:8px;cursor:pointer;">🔄 刷新</button>
+                <h2>🤖 机群任务调度中心</h2>
+                <button class="btn" onclick="refreshAll()">🔄 刷新</button>
             </header>
+            
+            <!-- 统计 -->
             <div class="stats-grid">
                 <div class="stat-card"><h3>总机器人</h3><div class="stat-value" id="stat-total">-</div></div>
-                <div class="stat-card"><h3>在线</h3><div class="stat-value" id="stat-online" style="color:var(--success)">-</div></div>
-                <div class="stat-card"><h3>离线</h3><div class="stat-value" id="stat-offline" style="color:var(--offline)">-</div></div>
-                <div class="stat-card"><h3>活跃任务</h3><div class="stat-value" id="stat-tasks">-</div></div>
-                <div class="stat-card"><h3>协作会话</h3><div class="stat-value" id="stat-collab">-</div></div>
+                <div class="stat-card"><h3>工作中</h3><div class="stat-value" id="stat-running" style="color:var(--running)">-</div></div>
+                <div class="stat-card"><h3>空闲</h3><div class="stat-value" id="stat-idle" style="color:var(--success)">-</div></div>
+                <div class="stat-card"><h3>待接任务</h3><div class="stat-value" id="stat-queued">-</div></div>
+                <div class="stat-card"><h3>进行中</h3><div class="stat-value" id="stat-progress">-</div></div>
+                <div class="stat-card"><h3>已完成</h3><div class="stat-value" id="stat-completed" style="color:var(--success)">-</div></div>
             </div>
+            
+            <!-- Dashboard 视图 -->
             <div id="view-dashboard" class="view-content active">
-                <div class="section-title">🤖 机器人状态</div>
+                <div class="section-title">
+                    <span>🤖 机器人状态与当前任务</span>
+                </div>
                 <div class="robots-grid" id="robots-grid"><div class="loading"><div class="spinner"></div>加载中...</div></div>
-                <div class="section-title">💬 活跃协作</div>
-                <div class="collab-list" id="collab-list"><div class="loading"><div class="spinner"></div>加载中...</div></div>
+                
+                <div class="section-title">
+                    <span>📋 任务队列 (待接取)</span>
+                    <span style="font-size:12px;color:var(--text-secondary)">按优先级排序</span>
+                </div>
+                <div class="task-queue" id="task-queue"><div class="loading"><div class="spinner"></div>加载中...</div></div>
             </div>
+            
+            <!-- 机器人视图 -->
             <div id="view-robots" class="view-content">
                 <div class="robots-grid" id="robots-grid-full"><div class="loading"><div class="spinner"></div>加载中...</div></div>
             </div>
-            <div id="view-tasks" class="view-content">
-                <div class="tasks-board" id="tasks-board"><div class="loading"><div class="spinner"></div>加载中...</div></div>
-            </div>
-            <div id="view-collab" class="view-content">
-                <div class="collab-list" id="collab-list-full"><div class="loading"><div class="spinner"></div>加载中...</div></div>
+            
+            <!-- 队列视图 -->
+            <div id="view-queue" class="view-content">
+                <div class="task-queue" id="task-queue-full"><div class="loading"><div class="spinner"></div>加载中...</div></div>
             </div>
         </main>
     </div>
+    
     <script>
         const DATA_URL = 'https://raw.githubusercontent.com/guyuan9300-max/fleethub/main/';
-        async function loadJSON(file) { try { const res = await fetch(DATA_URL + file + '?t=' + Date.now()); if (res.ok) return await res.json(); } catch(e) { console.error(file, e); } return null; }
+        
+        async function loadJSON(file) {
+            try {
+                const res = await fetch(DATA_URL + file + '?t=' + Date.now());
+                if (res.ok) return await res.json();
+            } catch(e) { console.error(file, e); }
+            return null;
+        }
+        
         async function refreshAll() {
-            const [robots, tasks, collab] = await Promise.all([loadJSON('robots.json'), loadJSON('tasks.json'), loadJSON('collab.json')]);
-            renderStats(robots, tasks, collab); renderRobots(robots); renderTasks(tasks); renderCollab(collab);
+            const [robots, tasks] = await Promise.all([
+                loadJSON('robots.json'),
+                loadJSON('tasks.json')
+            ]);
+            renderStats(robots, tasks);
+            renderRobots(robots);
+            renderTaskQueue(tasks);
         }
-        function renderStats(robots, tasks, collab) {
-            const online = (robots||[]).filter(r => r.status === 'online').length;
-            const offline = (robots||[]).filter(r => r.status === 'offline').length;
-            const activeTasks = (tasks||[]).filter(t => t.status === 'RUNNING').length;
+        
+        function renderStats(robots, tasks) {
+            const running = (robots||[]).filter(r => r.status === 'running').length;
+            const idle = (robots||[]).filter(r => r.status === 'idle').length;
+            const queued = (tasks||[]).filter(t => t.status === 'QUEUED').length;
+            const inProgress = (tasks||[]).filter(t => t.status === 'RUNNING').length;
+            const completed = (tasks||[]).filter(t => t.status === 'COMPLETED').length;
+            
             document.getElementById('stat-total').textContent = (robots||[]).length || 0;
-            document.getElementById('stat-online').textContent = online;
-            document.getElementById('stat-offline').textContent = offline;
-            document.getElementById('stat-tasks').textContent = activeTasks;
-            document.getElementById('stat-collab').textContent = (collab||[]).length || 0;
+            document.getElementById('stat-running').textContent = running;
+            document.getElementById('stat-idle').textContent = idle;
+            document.getElementById('stat-queued').textContent = queued;
+            document.getElementById('stat-progress').textContent = inProgress;
+            document.getElementById('stat-completed').textContent = completed;
         }
+        
         function renderRobots(robots) {
-            if (!robots || robots.length === 0) { const msg = '<div class="loading">暂无机器人数据</div>'; document.getElementById('robots-grid').innerHTML = msg; document.getElementById('robots-grid-full').innerHTML = msg; return; }
+            if (!robots || robots.length === 0) {
+                const msg = '<div class="loading">暂无机器人</div>';
+                document.getElementById('robots-grid').innerHTML = msg;
+                document.getElementById('robots-grid-full').innerHTML = msg;
+                return;
+            }
+            
             const colors = {'顾源源的 MacBook Air': '#4F46E5', '默默机器人': '#10B981'};
             const html = robots.map(r => {
                 const color = colors[r.name] || '#6E7681';
-                return `<div class="robot-card"><div class="robot-header"><div class="robot-info"><div class="robot-avatar" style="background:${color}">${r.name[0]}</div><div><div class="robot-name">${r.name}</div><div class="robot-owner">${r.owner} · ${r.location}</div></div></div><span class="status-badge ${r.status}">${r.status === 'online' ? '🟢 在线' : '🔴 离线'}</span></div><div class="robot-metrics"><div class="metric"><div class="metric-label">CPU</div><div class="metric-value">${r.cpu}%</div></div><div class="metric"><div class="metric-label">内存</div><div class="metric-value">${r.memory}%</div></div><div class="metric"><div class="metric-label">版本</div><div class="metric-value">${r.version}</div></div><div class="metric"><div class="metric-label">健康度</div><div class="metric-value" style="color:${r.health_score > 70 ? 'var(--success)' : 'var(--warning)'}">${r.health_score || '-'}%</div></div></div><div class="metric"><div class="metric-label">当前任务</div><div class="metric-value" style="color:var(--primary-light)">${r.current_task || '待命中'}</div></div><div class="progress-bar"><div class="progress-fill" style="width:${r.progress || 0}%"></div></div></div>`;
+                const statusText = r.status === 'running' ? '工作中' : r.status === 'idle' ? '空闲' : '离线';
+                return `
+                <div class="robot-card">
+                    <div class="robot-header">
+                        <div class="robot-info">
+                            <div class="robot-avatar" style="background:${color}">${r.name[0]}</div>
+                            <div>
+                                <div class="robot-name">${r.name}</div>
+                                <div class="robot-owner">${r.owner} · ${r.location}</div>
+                            </div>
+                        </div>
+                        <span class="status-badge ${r.status}">${statusText}</span>
+                    </div>
+                    
+                    ${r.current_task ? `
+                    <div class="robot-task">
+                        <div class="task-label">当前任务</div>
+                        <div class="task-name">${r.current_task}</div>
+                        <div class="task-progress">
+                            <div class="progress-bar"><div class="progress-fill" style="width:${r.progress}%"></div></div>
+                            <span class="progress-text">${r.progress}%</span>
+                        </div>
+                    </div>` : `
+                    <div class="robot-task">
+                        <div class="task-label">当前任务</div>
+                        <div class="task-name" style="color:var(--text-secondary)">等待任务中...</div>
+                    </div>`}
+                    
+                    <div class="robot-metrics">
+                        <div class="metric"><div class="metric-label">CPU</div><div class="metric-value">${r.cpu}%</div></div>
+                        <div class="metric"><div class="metric-label">内存</div><div class="metric-value">${r.memory}%</div></div>
+                        <div class="metric"><div class="metric-label">健康度</div><div class="metric-value" style="color:${r.health_score > 70 ? 'var(--success)' : 'var(--warning)'}">${r.health_score}%</div></div>
+                    </div>
+                    
+                    <div class="robot-tags">
+                        ${(r.capabilities||[]).map(c => `<span class="tag">${c}</span>`).join('')}
+                    </div>
+                </div>`;
             }).join('');
+            
             document.getElementById('robots-grid').innerHTML = html;
             document.getElementById('robots-grid-full').innerHTML = html;
         }
-        function renderTasks(tasks) {
-            if (!tasks || tasks.length === 0) { document.getElementById('tasks-board').innerHTML = '<div class="loading">暂无任务</div>'; return; }
-            const cols = { TODO: [], RUNNING: [], BLOCKED: [], DONE: [] };
-            tasks.forEach(t => { if (cols[t.status]) cols[t.status].push(t); });
-            const html = Object.entries(cols).map(([status, list]) => `<div class="task-column"><h4 class="${status.toLowerCase()}">${status === 'TODO' ? '📝 待办' : status === 'RUNNING' ? '🔄 进行中' : status === 'BLOCKED' ? '⚠️ 阻塞' : '✅ 完成'} (${list.length})</h4>${list.map(t => `<div class="task-card"><div class="task-title">${t.title}</div><div class="task-meta"><span>👤 ${t.current_owner_robot_id || '未分配'}</span><span>${t.progress}%</span></div></div>`).join('')}</div>`).join('');
-            document.getElementById('tasks-board').innerHTML = html;
+        
+        function renderTaskQueue(tasks) {
+            if (!tasks || tasks.length === 0) {
+                const msg = '<div class="loading">暂无任务</div>';
+                document.getElementById('task-queue').innerHTML = msg;
+                document.getElementById('task-queue-full').innerHTML = msg;
+                return;
+            }
+            
+            // 按状态和优先级排序
+            const sorted = [...tasks].sort((a, b) => {
+                const statusOrder = { 'RUNNING': 0, 'QUEUED': 1, 'COMPLETED': 2 };
+                if (statusOrder[a.status] !== statusOrder[b.status]) return statusOrder[a.status] - statusOrder[b.status];
+                const priorityOrder = { 'high': 0, 'medium': 1, 'low': 2 };
+                return priorityOrder[a.priority] - priorityOrder[b.priority];
+            });
+            
+            const sourceIcons = { 'feishu_group': '💬', 'feishu_dm': '📱', 'manual': '✏️', 'scheduler': '⏰' };
+            
+            const html = sorted.map(t => {
+                const assigneeAvatar = t.assigned_to ? 
+                    `<div class="assignee-avatar robot">${t.assigned_to[0]}</div>` :
+                    `<div class="assignee-avatar unassigned">?</div>`;
+                
+                return `
+                <div class="task-item">
+                    <div class="task-priority ${t.priority}"></div>
+                    <div class="task-info">
+                        <div class="task-title">${t.title}</div>
+                        <div class="task-meta">
+                            <span class="task-source">${sourceIcons[t.source_type] || '📋'} ${t.source}</span>
+                            <span>👤 ${t.requester}</span>
+                            <span>⏱️ 预计${t.estimated_minutes}分钟</span>
+                        </div>
+                    </div>
+                    <div class="task-assignee">
+                        ${assigneeAvatar}
+                        <span style="font-size:12px;color:var(--text-secondary)">${t.assigned_to || '待分配'}</span>
+                    </div>
+                    <span class="task-status ${t.status}">${t.status === 'QUEUED' ? '待接' : t.status === 'RUNNING' ? '进行中' : '已完成'}</span>
+                </div>`;
+            }).join('');
+            
+            document.getElementById('task-queue').innerHTML = html;
+            document.getElementById('task-queue-full').innerHTML = html;
         }
-        function renderCollab(collab) {
-            if (!collab || collab.length === 0) { const msg = '<div class="loading">暂无协作</div>'; document.getElementById('collab-list').innerHTML = msg; document.getElementById('collab-list-full').innerHTML = msg; return; }
-            const html = collab.map(c => `<div class="collab-item"><div class="collab-icon">💬</div><div class="collab-info"><div class="collab-name">${c.chat_name || c.chat_id}</div><div class="collab-task">📋 ${c.task_id || '无关联任务'}</div></div><div class="collab-participants">${c.participants.map(p => `<div class="participant ${p.type}" title="${p.name}">${p.name[0]}</div>`).join('')}</div></div>`).join('');
-            document.getElementById('collab-list').innerHTML = html;
-            document.getElementById('collab-list-full').innerHTML = html;
-        }
+        
         function switchView(view) {
             document.querySelectorAll('.view-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.getElementById('view-' + view).classList.add('active');
             event.target.classList.add('active');
         }
+        
         refreshAll();
         setInterval(refreshAll, 30000);
     </script>
