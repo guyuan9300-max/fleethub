@@ -1,4 +1,0 @@
-fastapi==0.115.8
-uvicorn[standard]==0.30.6
-asyncpg==0.29.0
-pydantic==2.9.2
