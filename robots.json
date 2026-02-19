@@ -1,0 +1,30 @@
+[
+  {
+    "name": "顾源源的 MacBook Air",
+    "status": "在线",
+    "currentTask": "与顾源源对话中 - 配置机群管理看板",
+    "progress": 100,
+    "cpu": 50,
+    "memory": 52,
+    "owner": "顾源源",
+    "location": "上海",
+    "version": "2026.2.16",
+    "issueStatus": "正常",
+    "tasksCompleted": 15,
+    "uptime": "44天21小时"
+  },
+  {
+    "name": "默默机器人",
+    "status": "在线",
+    "currentTask": "待命中",
+    "progress": 0,
+    "cpu": 45,
+    "memory": 60,
+    "owner": "默默",
+    "location": "远程",
+    "version": "2026.2.16",
+    "issueStatus": "正常",
+    "tasksCompleted": 0,
+    "uptime": "新加入"
+  }
+]
