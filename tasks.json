@@ -1,0 +1,37 @@
+[
+  {
+    "task_id": "task_001",
+    "title": "配置 FleetHub 多机器人看板",
+    "description": "完成多机器人管理系统的可视化面板",
+    "status": "RUNNING",
+    "created_at": 1771494000000,
+    "current_owner_robot_id": "guyuanyuan-macbook-air",
+    "assignees": [
+      { "type": "robot", "id": "guyuanyuan-macbook-air", "name": "顾源源的 MacBook Air" },
+      { "type": "human", "id": "ou_938834b0555a475220bda60f91725e0b", "name": "顾源源" }
+    ],
+    "progress": 75
+  },
+  {
+    "task_id": "task_002", 
+    "title": "搭建飞书任务推送通道",
+    "description": "实现飞书机器人任务通知和日报",
+    "status": "TODO",
+    "created_at": 1771495000000,
+    "current_owner_robot_id": null,
+    "assignees": [
+      { "type": "robot", "id": "momobot", "name": "默默机器人" }
+    ],
+    "progress": 0
+  },
+  {
+    "task_id": "task_003",
+    "title": "部署 Fleet Hub 到 NAS",
+    "description": "在 NAS 上部署中控服务",
+    "status": "BLOCKED",
+    "created_at": 1771493000000,
+    "current_owner_robot_id": null,
+    "assignees": [],
+    "progress": 30
+  }
+]
